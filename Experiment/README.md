@@ -6,7 +6,7 @@ From the repository root, run:
 python3 Experiment/run_experiments.py
 ```
 
-Edit `Experiment/config.json` to set arrays of `m`, `n`, `k`, and `seeds`.
+Edit `Experiment/Config/config.json` to set arrays of `m`, `n`, `k`, and `seeds`.
 The runner evaluates every combination. Use positive integers for m, n, k;
 `"all"` in the k array selects unrestricted search. Integer k >= n is
 also equivalent to unrestricted search. Seeds are integers.
@@ -73,7 +73,7 @@ as well as solve time when choosing k. Begin with small state counts, increasing
 Alternative settings and output location:
 
 ```sh
-python3 Experiment/run_experiments.py --config Experiment/config.json --output Experiment/results/my_sweep
+python3 Experiment/run_experiments.py --config Experiment/Config/config.json --output Experiment/results/my_sweep
 ```
 
 The output directory must not already exist, preventing accidental overwrites.
@@ -90,7 +90,7 @@ python3 Experiment/run_experiments.py
 ```
 
 This writes m=[1,2,3,4], n=[5,10,15,20], k=[1,2,3], and seeds 42 through
-51 to `Experiment/config.json`, replacing that config if it exists.
+51 to `Experiment/Config/config.json`, replacing that config if it exists.
 Each parameter combination uses the same seed array. For one value, use
 the same start and end: `--m 5 5` produces [5]. Negative steps are
 supported for descending ranges; empty ranges and zero steps are rejected.
@@ -98,7 +98,52 @@ supported for descending ranges; empty ranges and zero steps are rejected.
 Use `--k all` for unrestricted search only, or `--include-all` to append
 unrestricted search to a numeric k range. Other settings remain scalars:
 `--trials 10`, `--row-sizes equal` (or `random`), `--timeout-seconds 60`,
-`--max-states 1000000`, and `--output Experiment/custom_config.json`.
+`--max-states 1000000`, and `--output Experiment/Config/custom_config.json`.
 Seeds always start at 42 and increase by 1.
 With no arguments, the generator uses m=[3,4], n=[5,10], k=[1,2], and
 seeds=[42,43,44]. Custom output can be run with the runner's `--config` flag.
+
+## Background batches with nohup
+
+Activate the Conda environment first. The script inherits its Python executable.
+By default it runs `m_equal` and `m_random`, with 100 trials per configuration
+(1,400 trials total, seeds 42–141). It runs experiments sequentially.
+
+```sh
+conda activate idk_env
+nohup bash Experiment/run_stress_tests.sh > /dev/null 2>&1 < /dev/null &
+echo $!  # Batch process ID
+ tail -f log.txt
+```
+
+The script appends stdout and stderr to the project-root `log.txt`, including
+commands, interpreter details, timestamps, per-trial statuses, and result paths.
+Configs are stored in `Experiment/Config`; CSV results remain in timestamped
+`Experiment/results` directories. A script error stops the batch; individual
+trial failures/timeouts are recorded by the runner and do not stop other trials.
+
+Choose experiments by name, or edit `DEFAULT_EXPERIMENTS` in the script:
+
+```sh
+nohup bash Experiment/run_stress_tests.sh m_equal n_equal k_equal m_random > /dev/null 2>&1 < /dev/null &
+```
+
+- `m_equal`: m=2–8, n=5, k=1, equal row lengths.
+- `m_random`: same dimensions, random row lengths.
+- `n_equal`: m=4, n=5–30 in steps of 5, k=2.
+- `k_equal`: m=4, n=20, k=1–19 in steps of 3, plus unrestricted search.
+
+Preview commands without generating configs or running simulations:
+
+```sh
+bash Experiment/run_stress_tests.sh --dry-run m_equal n_equal k_equal m_random
+```
+
+The preview also appends to `log.txt`. Override settings at launch if needed:
+
+```sh
+TRIALS=200 TIMEOUT_SECONDS=120 MAX_STATES=2000000 nohup bash Experiment/run_stress_tests.sh m_equal > /dev/null 2>&1 < /dev/null &
+```
+
+`PYTHON` and `LOG_FILE` can also be overridden. The default timeout is 60 seconds
+per trial and the default state limit is 2,000,000; it is not a memory limit.

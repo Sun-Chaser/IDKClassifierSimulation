@@ -216,4 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local results directory
 results/
+log.*

@@ -132,7 +132,7 @@ def run(config, output):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", type=Path, default=Path(__file__).with_name("config.json"))
+    parser.add_argument("--config", type=Path, default=Path(__file__).resolve().parent / "Config" / "config.json")
     parser.add_argument("--output", type=Path, help="New directory for this sweep")
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()

@@ -37,7 +37,7 @@ def main():
     parser.add_argument('--timeout-seconds', type=float, default=60)
     parser.add_argument('--max-states', type=int, default=1000000)
     parser.add_argument('--output', type=Path,
-                        default=Path(__file__).with_name('config.json'),
+                        default=Path(__file__).resolve().parent / 'Config' / 'config.json',
                         help='Config to write (replaces an existing file)')
     args = parser.parse_args()
     if args.trials < 1:
