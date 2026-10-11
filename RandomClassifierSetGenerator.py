@@ -5,6 +5,9 @@ import random
 class RandomSetGenerator:
     """Generate M classifier sets, each containing between 1 and N classifiers.
 
+    equal_row_length="random" (default) varies row lengths; "equal" gives
+    every set exactly N classifiers, including calls to generate_set().
+
     Probabilities and costs are returned separately. For multiple sets,
     each matrix has a dummy [0.0] row at index 0 and classes 1 through M; corresponding rows have matching
     lengths, but different sets may have different lengths. At least one
@@ -19,19 +22,22 @@ class RandomSetGenerator:
     that state. Omitting seed uses system-provided randomness.
     """
 
-    def __init__(self, M: int, N: int, seed=None):
+    def __init__(self, M: int, N: int, seed=None, equal_row_length="random"):
         for name, value in (("M", M), ("N", N)):
             if isinstance(value, bool) or not isinstance(value, int):
                 raise TypeError(f"{name} must be an integer")
             if value < 1:
                 raise ValueError(f"{name} must be positive")
+        if equal_row_length not in ("random", "equal"):
+            raise ValueError('equal_row_length must be "random" or "equal"')
+        self.equal_row_length = equal_row_length
         self.M = M
         self.N = N
         self._rng = random.Random(seed)
 
     def generate_set(self) -> tuple[list[float], list[float]]:
         """Return separate probability and cost arrays for one set."""
-        size = self._rng.randint(1, self.N)
+        size = self.N if self.equal_row_length == "equal" else self._rng.randint(1, self.N)
         return self._generate_set_of_size(size)
 
     def _generate_set_of_size(self, size: int) -> tuple[list[float], list[float]]:
@@ -43,7 +49,7 @@ class RandomSetGenerator:
         """Return two (M+1)-row matrices, including dummy row 0."""
         probability_matrix = [[0.0]]
         cost_matrix = [[0.0]]
-        full_size_index = self._rng.randrange(self.M)
+        full_size_index = self._rng.randrange(self.M) if self.equal_row_length == "random" else None
         for i in range(self.M):
             if i == full_size_index:
                 probabilities, costs = self._generate_set_of_size(self.N)

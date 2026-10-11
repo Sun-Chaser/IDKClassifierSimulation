@@ -1,0 +1,9 @@
+{
+  "m": [3, 4],
+  "n": [5, 10],
+  "k": [1, 2, "all"],
+  "seeds": [42, 43, 44],
+  "row_sizes": "equal",
+  "timeout_seconds": 60,
+  "max_states": 1000000
+}
