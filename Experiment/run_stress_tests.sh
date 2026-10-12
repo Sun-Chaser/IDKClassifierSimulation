@@ -3,9 +3,9 @@ set -euo pipefail
 
 # ---------- Edit these settings before each run ----------
 EXPERIMENT_NAME="my_experiment"   # A filename-friendly name of your choice
-M=(2 8 1)                       # Start, end (inclusive), step
-N=(5 5 1)                       # Same start/end means one value
-K=(1 1 1)                       # Use K=(all) for unrestricted search
+M=(4 4 1)                       # Start, end (inclusive), step
+N=(10 10 1)                       # Same start/end means one value
+K=(1 10 1)                       # Use K=(all) for unrestricted search
 TRIALS=100                      # Seeds: 42, 43, ..., 42 + TRIALS - 1
 ROW_SIZES="equal"               # "equal" or "random"
 TIMEOUT_SECONDS=60              # Maximum time for each trial
