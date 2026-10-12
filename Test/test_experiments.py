@@ -1,12 +1,18 @@
+# Allow direct execution as well as unittest discovery from the project root.
+import sys
+from pathlib import Path
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 import contextlib
 import csv
 import io
-from pathlib import Path
 import tempfile
 import unittest
 
 from Experiment.run_experiments import run
-from RandomClassifierSetGenerator import RandomSetGenerator
+from Simulator.RandomClassifierSetGenerator import RandomSetGenerator
 
 
 class ExperimentTests(unittest.TestCase):

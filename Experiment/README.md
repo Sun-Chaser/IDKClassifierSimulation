@@ -58,6 +58,8 @@ Each case runs sequentially in a fresh process to isolate cache and memory.
 The generator also supports this directly:
 
 ```python
+from Simulator.RandomClassifierSetGenerator import RandomSetGenerator
+
 RandomSetGenerator(5, 10, seed=42, equal_row_length="equal")
 ```
 
@@ -103,47 +105,38 @@ Seeds always start at 42 and increase by 1.
 With no arguments, the generator uses m=[3,4], n=[5,10], k=[1,2], and
 seeds=[42,43,44]. Custom output can be run with the runner's `--config` flag.
 
-## Background batches with nohup
+## Run one experiment with nohup
 
-Activate the Conda environment first. The script inherits its Python executable.
-By default it runs `m_equal` and `m_random`, with 100 trials per configuration
-(1,400 trials total, seeds 42–141). It runs experiments sequentially.
+Edit the settings at the top of `Experiment/run_stress_tests.sh`:
+
+```bash
+EXPERIMENT_NAME="my_experiment"
+M=(2 8 1)       # Inclusive start, end, step
+N=(5 5 1)       # Only n=5
+K=(1 1 1)       # Only k=1; use K=(all) for unrestricted search
+TRIALS=100
+ROW_SIZES="equal"
+TIMEOUT_SECONDS=60
+MAX_STATES=2000000
+PYTHON="python"
+```
+
+There are no preset experiment names or required command-line arguments.
+Each launch runs one named experiment, evaluating all combinations of its
+m, n, k values with seeds starting at 42. The default settings produce 700 trials.
+
+From the project root:
 
 ```sh
 conda activate idk_env
-nohup bash Experiment/run_stress_tests.sh > /dev/null 2>&1 < /dev/null &
-echo $!  # Batch process ID
- tail -f log.txt
+nohup bash Experiment/run_stress_tests.sh > launch.log 2>&1 < /dev/null &
+tail -f log.txt
 ```
 
-The script appends stdout and stderr to the project-root `log.txt`, including
-commands, interpreter details, timestamps, per-trial statuses, and result paths.
-Configs are stored in `Experiment/Config`; CSV results remain in timestamped
-`Experiment/results` directories. A script error stops the batch; individual
-trial failures/timeouts are recorded by the runner and do not stop other trials.
-
-Choose experiments by name, or edit `DEFAULT_EXPERIMENTS` in the script:
-
-```sh
-nohup bash Experiment/run_stress_tests.sh m_equal n_equal k_equal m_random > /dev/null 2>&1 < /dev/null &
-```
-
-- `m_equal`: m=2–8, n=5, k=1, equal row lengths.
-- `m_random`: same dimensions, random row lengths.
-- `n_equal`: m=4, n=5–30 in steps of 5, k=2.
-- `k_equal`: m=4, n=20, k=1–19 in steps of 3, plus unrestricted search.
-
-Preview commands without generating configs or running simulations:
-
-```sh
-bash Experiment/run_stress_tests.sh --dry-run m_equal n_equal k_equal m_random
-```
-
-The preview also appends to `log.txt`. Override settings at launch if needed:
-
-```sh
-TRIALS=200 TIMEOUT_SECONDS=120 MAX_STATES=2000000 nohup bash Experiment/run_stress_tests.sh m_equal > /dev/null 2>&1 < /dev/null &
-```
-
-`PYTHON` and `LOG_FILE` can also be overridden. The default timeout is 60 seconds
-per trial and the default state limit is 2,000,000; it is not a memory limit.
+`log.txt` is cleared on every launch and contains progress and errors.
+`launch.log` captures errors before the script can open `log.txt`.
+Configs are saved in `Experiment/Config` and CSV results in `Experiment/results`;
+both use your experiment name plus a timestamp and process ID to preserve past runs.
+A script error stops the experiment. Individual trial failures/timeouts are
+recorded by the runner, which continues with the next trial. The state limit
+is not a memory limit. Run only one script at a time when sharing `log.txt`.

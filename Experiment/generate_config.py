@@ -3,7 +3,10 @@ import argparse
 import json
 from pathlib import Path
 
-from run_experiments import validate
+if __package__:
+    from .run_experiments import validate
+else:
+    from run_experiments import validate
 
 
 def expand_range(values, name):

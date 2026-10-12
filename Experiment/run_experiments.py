@@ -12,8 +12,8 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from DPSimulation import DPSimulation
-from RandomClassifierSetGenerator import RandomSetGenerator
+from Simulator.DPSimulation import DPSimulation
+from Simulator.RandomClassifierSetGenerator import RandomSetGenerator
 
 
 def validate(config):

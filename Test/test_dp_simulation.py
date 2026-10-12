@@ -1,7 +1,7 @@
 import unittest
 
-from DPSimulation import DPSimulation
-from RandomClassifierSetGenerator import RandomSetGenerator
+from Simulator.DPSimulation import DPSimulation
+from Simulator.RandomClassifierSetGenerator import RandomSetGenerator
 
 
 class DPSimulationTests(unittest.TestCase):

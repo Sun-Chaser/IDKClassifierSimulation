@@ -1,5 +1,5 @@
-from RandomClassifierSetGenerator import RandomSetGenerator 
-from DPSimulation import DPSimulation
+from Simulator.RandomClassifierSetGenerator import RandomSetGenerator 
+from Simulator.DPSimulation import DPSimulation
 
 
 if __name__ == "__main__":
